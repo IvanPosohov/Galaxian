@@ -1,25 +1,34 @@
-package ru.zulu.galaxian.background.views;
+package ru.zulu.galaxian.core.views;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.List;
 
 import javax.swing.JPanel;
 
-import ru.zulu.galaxian.background.BackgroundManager;
-import ru.zulu.galaxian.background.BackgroundManager.OnUpdateBackgroundViewListener;
-import ru.zulu.galaxian.background.models.Star;
+public class BaseView extends JPanel {
+	// serialization magic
+	private static final long serialVersionUID = 157841L;
 
-public class BackgroundView extends JPanel implements OnUpdateBackgroundViewListener {
+	public interface OnDrawListener {
+		void onDraw(Graphics _graphics);
+	}
+
 	// =============================================================================================
 	// FIELDS
 	// =============================================================================================
-	private List<Star> stars;
+	private OnDrawListener onDrawListener;
+
+	// =============================================================================================
+	// SETTERS
+	// =============================================================================================
+	public void setOnDrawListener(OnDrawListener _onDrawListener) {
+		onDrawListener = _onDrawListener;
+	}
 
 	// =============================================================================================
 	// CONSTRUCTOR
 	// =============================================================================================
-	public BackgroundView() {
+	public BaseView() {
 		setBackground(Color.BLACK);
 	}
 
@@ -29,22 +38,9 @@ public class BackgroundView extends JPanel implements OnUpdateBackgroundViewList
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (stars != null) {
-			for (Star star : stars) {
-				if (star.isVisible) {
-					star.draw(g);
-				}
-			}
+		if (onDrawListener != null) {
+			onDrawListener.onDraw(g);
 		}
 		g.dispose();
-	}
-
-	// =============================================================================================
-	// METHODS
-	// =============================================================================================
-	@Override
-	public void onUpdate(List<Star> _stars) {
-		stars = _stars;
-		repaint();
 	}
 }

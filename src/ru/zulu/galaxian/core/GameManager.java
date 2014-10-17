@@ -1,11 +1,20 @@
 package ru.zulu.galaxian.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class GameManager {
+import javax.swing.Timer;
+
+import ru.zulu.galaxian.background.BackgroundManager;
+import ru.zulu.galaxian.core.models.GameState;
+import ru.zulu.galaxian.core.views.BaseView;
+import ru.zulu.galaxian.core.views.BaseView.OnDrawListener;
+import ru.zulu.galaxian.player.PlayerManager;
+
+public class GameManager extends BaseManager implements KeyListener, OnDrawListener {
 	// =============================================================================================
 	// CONSTANTS
 	// =============================================================================================
@@ -14,45 +23,105 @@ public class GameManager {
 	// =============================================================================================
 	// FIELDS
 	// =============================================================================================
+	private BackgroundManager backgroundManager;
+	private PlayerManager playerManager;
+	private BaseView view;
 	private Timer worldTimer;
-	private List<OnUpdateListener> onUpdateListeners;
+	private GameState state;
+
+	// =============================================================================================
+	// GETTERS/SETTERS
+	// =============================================================================================
+	public void setView(BaseView _view) {
+		if (view != null) {
+			view.setOnDrawListener(null);
+		}
+		view = _view;
+		view.setOnDrawListener(this);
+	}
+	
+	private GameState getState() {
+		return state;
+	}
 
 	// =============================================================================================
 	// CONSTRUCTOR
 	// =============================================================================================
 	public GameManager() {
-		worldTimer = new Timer();
-		onUpdateListeners = new ArrayList<OnUpdateListener>();
+		backgroundManager = new BackgroundManager();
+		playerManager = new PlayerManager();
+		worldTimer = new Timer(WORLD_UPDATE_INTERVAL_MILLIS, worldTimerTask);
+		state = GameState.IDLE;
 	}
 
 	// =============================================================================================
-	// WORLD TIMER
+	// METHODS OF BASE CLASSES
 	// =============================================================================================
-	private TimerTask worldTimerTask = new TimerTask() {
-		@Override
-		public void run() {
-			for (OnUpdateListener onUpdateListener : onUpdateListeners) {
-				onUpdateListener.onUpdate();
-			}
-		}
+	public void setGameAreaSize(int _width, int _height) {
+		super.setGameAreaSize(_width, _height);
+		backgroundManager.setGameAreaSize(_width, _height);
+		playerManager.setGameAreaSize(_width, _height);
 	};
 
 	// =============================================================================================
 	// METHODS
 	// =============================================================================================
+	@Override
 	public void start() {
-		worldTimer.schedule(worldTimerTask, 0, WORLD_UPDATE_INTERVAL_MILLIS);
+		state = GameState.RUNNING;
+		playerManager.start();
+		worldTimer.start();
 	}
 
 	public void stop() {
-		worldTimer.cancel();
+		state = GameState.PAUSED;
+		worldTimer.stop();
+		if (view != null) {
+			view.repaint();
+		}
 	}
 
-	public void addOnUpdateListener(OnUpdateListener _onUpdateListener) {
-		onUpdateListeners.add(_onUpdateListener);
+	// =============================================================================================
+	// UPDATING
+	// =============================================================================================
+	private ActionListener worldTimerTask = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			updateWorld();
+		}
+	};
+
+	public void updateWorld() {
+		backgroundManager.onUpdate();
+		playerManager.onUpdate();
+		if (view != null) {
+			view.repaint();
+		}
 	}
 
-	public void removeOnUpdateListener(OnUpdateListener _onUpdateListener) {
-		onUpdateListeners.remove(_onUpdateListener);
+	@Override
+	public void onDraw(Graphics _graphics) {
+		if (state == GameState.RUNNING) {
+			backgroundManager.onDraw(_graphics);
+			playerManager.onDraw(_graphics);
+		}
+	}
+
+	// =============================================================================================
+	// KEYBOARD EVENT HANDLERS
+	// =============================================================================================
+	@Override
+	public void keyPressed(KeyEvent _keyEvent) {
+		playerManager.keyPressed(_keyEvent);
+	}
+
+	@Override
+	public void keyReleased(KeyEvent _keyEvent) {
+		playerManager.keyReleased(_keyEvent);
+	}
+
+	@Override
+	public void keyTyped(KeyEvent _keyEvent) {
+		playerManager.keyTyped(_keyEvent);
 	}
 }

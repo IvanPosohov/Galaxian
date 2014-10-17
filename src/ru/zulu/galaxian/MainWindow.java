@@ -1,24 +1,24 @@
 package ru.zulu.galaxian;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import ru.zulu.galaxian.background.BackgroundManager;
-import ru.zulu.galaxian.background.views.BackgroundView;
 import ru.zulu.galaxian.core.GameManager;
+import ru.zulu.galaxian.core.views.BaseView;
 
 public class MainWindow {
 
 	private JFrame frmGalaxian;
 	private GameManager gameManager;
-	private BackgroundManager backgroundManager;
-	private BackgroundView backgroundView;
+	private BaseView gameView;
 
 	/**
 	 * Launch the application.
@@ -41,63 +41,62 @@ public class MainWindow {
 	 */
 	public MainWindow() {
 		gameManager = new GameManager();
-		backgroundManager = new BackgroundManager();
-		gameManager.addOnUpdateListener(backgroundManager);
-		initialize();
-	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
 		frmGalaxian = new JFrame();
+		frmGalaxian.addKeyListener(gameManager);
+		frmGalaxian.setResizable(false);
 		frmGalaxian.setTitle("Galaxian");
 		frmGalaxian.setBounds(100, 100, 640, 480);
 		frmGalaxian.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		backgroundManager.setViewWidth(frmGalaxian.getWidth());
-		backgroundManager.setViewHeight(frmGalaxian.getHeight());
+		frmGalaxian.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				Dimension contentPanelSize = frmGalaxian.getContentPane().getSize();
+				gameManager.setGameAreaSize(contentPanelSize.width, contentPanelSize.height);
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+			}
+		});
 
 		JMenuBar menuBar = new JMenuBar();
 		frmGalaxian.setJMenuBar(menuBar);
 
-		JMenu mnGalaxian = new JMenu("Galaxian");
-		menuBar.add(mnGalaxian);
+		final JMenuItem miStartGame = new JMenuItem("Start game");
+		menuBar.add(miStartGame);
 
-		JMenuItem miStartGame = new JMenuItem("Начать игру");
-		miStartGame.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
+		final JMenuItem miStopGame = new JMenuItem("Stop game");
+		miStopGame.setEnabled(false);
+		menuBar.add(miStopGame);
 
+		miStartGame.addActionListener(new ActionListener() {
 			@Override
-			public void mousePressed(MouseEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				gameManager.start();
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
+				miStartGame.setEnabled(false);
+				miStopGame.setEnabled(true);
 			}
 		});
-		mnGalaxian.add(miStartGame);
+		miStopGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				gameManager.stop();
+				miStartGame.setEnabled(true);
+				miStopGame.setEnabled(false);
+			}
+		});
 
-		JMenu menu = new JMenu("Помощь");
-		menuBar.add(menu);
-
-		JMenuItem menuItem = new JMenuItem("Управление");
-		menu.add(menuItem);
-
-		backgroundView = new BackgroundView();
-		backgroundManager.setOnUpdateViewListener(backgroundView);
-		frmGalaxian.getContentPane().add(backgroundView);
+		gameView = new BaseView();
+		frmGalaxian.getContentPane().add(gameView);
+		gameManager.setView(gameView);
 	}
-
 }

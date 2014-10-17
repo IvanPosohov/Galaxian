@@ -10,9 +10,11 @@ public class Star extends DrawableObject {
 	// =============================================================================================
 	// CONSTANTS
 	// =============================================================================================
-	private static final int DEFAULT_SIZE = 3;
+	public static final int SIZE = 3;
+	public static final int SPEED = 2;
 	public static final int MAX_UPDATES_TO_CHANGE_VISIBILITY = 15;
 	public static final int MIN_UPDATES_TO_CHANGE_VISIBILITY = 5;
+	public static final float ALPHA = 0.4f;
 	private static final Random random = new Random();
 
 	// =============================================================================================
@@ -20,17 +22,14 @@ public class Star extends DrawableObject {
 	// =============================================================================================
 	private final int size;
 	private final Color color;
-	public int x;
-	public int y;
-	public boolean isVisible;
 	public int updatesToChangeVisibility;
 
 	// =============================================================================================
 	// CONSTRUCTOR
 	// =============================================================================================
 	public Star() {
-		size = DEFAULT_SIZE;
-		color = new Color(random.nextInt());
+		size = SIZE;
+		color = new Color(random.nextFloat(), random.nextFloat(), random.nextFloat(), ALPHA);
 	}
 
 	// =============================================================================================
