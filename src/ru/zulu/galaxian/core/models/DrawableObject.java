@@ -5,7 +5,8 @@ import java.awt.Graphics;
 public abstract class DrawableObject {
 	public int x;
 	public int y;
-	public boolean isVisible;
+	public int width;
+	public int height;
 	
 	public abstract void draw(Graphics _graphics);
 }

@@ -59,17 +59,13 @@ public class BackgroundManager extends BaseManager implements OnUpdateListener, 
 			star.x = getRandomX();
 			star.y = getRandomY();
 			star.isVisible = random.nextBoolean();
-			star.updatesToChangeVisibility = getRandomUpdatesToChangeVisibility();
 			stars.add(star);
 		}
 	}
 
 	private void updateStars() {
 		for (Star star : stars) {
-			if (star.updatesToChangeVisibility-- == 0) {
-				star.isVisible = !star.isVisible;
-				star.updatesToChangeVisibility = getRandomUpdatesToChangeVisibility();
-			}
+			star.update();
 			star.y += Star.SPEED;
 			if (star.y > gameAreaHeight) {
 				star.x = getRandomX();
@@ -85,10 +81,5 @@ public class BackgroundManager extends BaseManager implements OnUpdateListener, 
 
 	private int getRandomY() {
 		return random.nextInt(gameAreaHeight);
-	}
-
-	private int getRandomUpdatesToChangeVisibility() {
-		return random.nextInt(Star.MAX_UPDATES_TO_CHANGE_VISIBILITY - Star.MIN_UPDATES_TO_CHANGE_VISIBILITY)
-				+ Star.MIN_UPDATES_TO_CHANGE_VISIBILITY;
 	}
 }

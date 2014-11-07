@@ -46,7 +46,7 @@ public class MainWindow {
 		frmGalaxian.addKeyListener(gameManager);
 		frmGalaxian.setResizable(false);
 		frmGalaxian.setTitle("Galaxian");
-		frmGalaxian.setBounds(100, 100, 640, 480);
+		frmGalaxian.setBounds(100, 100, 640, 640);
 		frmGalaxian.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmGalaxian.addComponentListener(new ComponentListener() {
 			@Override

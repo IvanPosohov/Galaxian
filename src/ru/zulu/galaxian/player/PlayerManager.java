@@ -78,7 +78,7 @@ public class PlayerManager extends BaseManager implements OnUpdateListener, OnDr
 	private void updateBullet() {
 		if (bullet.ifFlies) {
 			bullet.y -= Bullet.SPEED;
-			if (bullet.y + Bullet.WIDTH <= 0) {
+			if (bullet.y + bullet.width <= 0) {
 				initBullet();
 			}
 		} else {
@@ -89,7 +89,7 @@ public class PlayerManager extends BaseManager implements OnUpdateListener, OnDr
 	private void initBullet() {
 		bullet.ifFlies = false;
 		bullet.x = player.getCenterX();
-		bullet.y = gameAreaHeight - player.height - Bullet.HEIGHT;
+		bullet.y = gameAreaHeight - player.height - bullet.height;
 	}
 
 	@Override
@@ -137,7 +137,7 @@ public class PlayerManager extends BaseManager implements OnUpdateListener, OnDr
 	}
 
 	// =============================================================================================
-	//
+	// METHODS
 	// =============================================================================================
 	private void shoot() {
 		if (!bullet.ifFlies) {

@@ -12,6 +12,7 @@ import ru.zulu.galaxian.background.BackgroundManager;
 import ru.zulu.galaxian.core.models.GameState;
 import ru.zulu.galaxian.core.views.BaseView;
 import ru.zulu.galaxian.core.views.BaseView.OnDrawListener;
+import ru.zulu.galaxian.enemy.EnemyManager;
 import ru.zulu.galaxian.player.PlayerManager;
 
 public class GameManager extends BaseManager implements KeyListener, OnDrawListener {
@@ -25,6 +26,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	// =============================================================================================
 	private BackgroundManager backgroundManager;
 	private PlayerManager playerManager;
+	private EnemyManager enemyManager;
 	private BaseView view;
 	private Timer worldTimer;
 	private GameState state;
@@ -40,16 +42,13 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 		view.setOnDrawListener(this);
 	}
 	
-	private GameState getState() {
-		return state;
-	}
-
 	// =============================================================================================
 	// CONSTRUCTOR
 	// =============================================================================================
 	public GameManager() {
 		backgroundManager = new BackgroundManager();
 		playerManager = new PlayerManager();
+		enemyManager = new EnemyManager();
 		worldTimer = new Timer(WORLD_UPDATE_INTERVAL_MILLIS, worldTimerTask);
 		state = GameState.IDLE;
 	}
@@ -61,6 +60,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 		super.setGameAreaSize(_width, _height);
 		backgroundManager.setGameAreaSize(_width, _height);
 		playerManager.setGameAreaSize(_width, _height);
+		enemyManager.setGameAreaSize(_width, _height);
 	};
 
 	// =============================================================================================
@@ -70,6 +70,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	public void start() {
 		state = GameState.RUNNING;
 		playerManager.start();
+		enemyManager.start();
 		worldTimer.start();
 	}
 
@@ -94,6 +95,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	public void updateWorld() {
 		backgroundManager.onUpdate();
 		playerManager.onUpdate();
+		enemyManager.onUpdate();
 		if (view != null) {
 			view.repaint();
 		}
@@ -104,6 +106,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 		if (state == GameState.RUNNING) {
 			backgroundManager.onDraw(_graphics);
 			playerManager.onDraw(_graphics);
+			enemyManager.onDraw(_graphics);
 		}
 	}
 
