@@ -1,4 +1,4 @@
-package ru.zulu.galaxian.enemy.models;
+package ru.zulu.galaxian.world.models;
 
 public enum MoveDirection {
 	LEFT,

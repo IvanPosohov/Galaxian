@@ -12,8 +12,7 @@ import ru.zulu.galaxian.background.BackgroundManager;
 import ru.zulu.galaxian.core.models.GameState;
 import ru.zulu.galaxian.core.views.BaseView;
 import ru.zulu.galaxian.core.views.BaseView.OnDrawListener;
-import ru.zulu.galaxian.enemy.EnemyManager;
-import ru.zulu.galaxian.player.PlayerManager;
+import ru.zulu.galaxian.world.WorldManager;
 
 public class GameManager extends BaseManager implements KeyListener, OnDrawListener {
 	// =============================================================================================
@@ -25,8 +24,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	// FIELDS
 	// =============================================================================================
 	private BackgroundManager backgroundManager;
-	private PlayerManager playerManager;
-	private EnemyManager enemyManager;
+	private WorldManager worldManager;
 	private BaseView view;
 	private Timer worldTimer;
 	private GameState state;
@@ -47,8 +45,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	// =============================================================================================
 	public GameManager() {
 		backgroundManager = new BackgroundManager();
-		playerManager = new PlayerManager();
-		enemyManager = new EnemyManager();
+		worldManager = new WorldManager();
 		worldTimer = new Timer(WORLD_UPDATE_INTERVAL_MILLIS, worldTimerTask);
 		state = GameState.IDLE;
 	}
@@ -59,8 +56,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	public void setGameAreaSize(int _width, int _height) {
 		super.setGameAreaSize(_width, _height);
 		backgroundManager.setGameAreaSize(_width, _height);
-		playerManager.setGameAreaSize(_width, _height);
-		enemyManager.setGameAreaSize(_width, _height);
+		worldManager.setGameAreaSize(_width, _height);
 	};
 
 	// =============================================================================================
@@ -69,8 +65,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	@Override
 	public void start() {
 		state = GameState.RUNNING;
-		playerManager.start();
-		enemyManager.start();
+		worldManager.start();
 		worldTimer.start();
 	}
 
@@ -88,14 +83,17 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	private ActionListener worldTimerTask = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			updateWorld();
+			update();
+			repaint();
 		}
 	};
 
-	public void updateWorld() {
+	private void update() {
 		backgroundManager.onUpdate();
-		playerManager.onUpdate();
-		enemyManager.onUpdate();
+		worldManager.onUpdate();
+	}
+	
+	private void repaint() {
 		if (view != null) {
 			view.repaint();
 		}
@@ -105,8 +103,7 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	public void onDraw(Graphics _graphics) {
 		if (state == GameState.RUNNING) {
 			backgroundManager.onDraw(_graphics);
-			playerManager.onDraw(_graphics);
-			enemyManager.onDraw(_graphics);
+			worldManager.onDraw(_graphics);
 		}
 	}
 
@@ -115,16 +112,16 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 	// =============================================================================================
 	@Override
 	public void keyPressed(KeyEvent _keyEvent) {
-		playerManager.keyPressed(_keyEvent);
+		worldManager.keyPressed(_keyEvent);
 	}
 
 	@Override
 	public void keyReleased(KeyEvent _keyEvent) {
-		playerManager.keyReleased(_keyEvent);
+		worldManager.keyReleased(_keyEvent);
 	}
 
 	@Override
 	public void keyTyped(KeyEvent _keyEvent) {
-		playerManager.keyTyped(_keyEvent);
+		worldManager.keyTyped(_keyEvent);
 	}
 }

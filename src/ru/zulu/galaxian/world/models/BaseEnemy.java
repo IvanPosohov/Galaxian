@@ -1,28 +1,31 @@
-package ru.zulu.galaxian.enemy.models;
+package ru.zulu.galaxian.world.models;
 
 import java.awt.Graphics;
 import java.awt.Image;
 import java.util.Random;
 
 import ru.zulu.galaxian.core.models.DrawableObject;
+import utils.SpriteSheet;
+import utils.SpriteSheetAnimator;
+import utils.SpriteSheetAnimator.SpriteSheetAnimatorEventsListener;
 
 public abstract class BaseEnemy extends DrawableObject {
 	// =============================================================================================
 	// CONSTANTS
 	// =============================================================================================
-	public static final int MAX_UPDATES_TO_CHANGE_SPRITE = 9;
-	public static final int MIN_UPDATES_TO_CHANGE_SPRITE = 4;
+	protected static final int MAX_UPDATES_TO_CHANGE_SPRITE = 9;
+	protected static final int MIN_UPDATES_TO_CHANGE_SPRITE = 4;
+	private static final SpriteSheet DYING_SPRITE_SHEET = new SpriteSheet("explosion.png", 32, 32);
 
 	// =============================================================================================
 	// FIELDS
 	// =============================================================================================
-	private static Random random = new Random();
-	public EnemyState state = EnemyState.STILL;
 	public final int row;
 	public final int column;
-	protected Image[] sprites;
-	private int updatesToChangeSprite;
-	private int spriteIndex;
+	public EnemyState state;
+	protected Image sprite;
+	protected SpriteSheetAnimator livingAnimator;
+	private SpriteSheetAnimator dyingAnimator;
 
 	// =============================================================================================
 	// CONSTRUCTOR
@@ -30,33 +33,40 @@ public abstract class BaseEnemy extends DrawableObject {
 	public BaseEnemy(int _row, int _column) {
 		row = _row;
 		column = _column;
-	}
-	
-	// =============================================================================================
-	// CALLBACKS
-	// =============================================================================================
-	protected void onSpritesLoaded() {
-		// all sprites must be the same size
-		width = sprites[0].getWidth(null);
-		height = sprites[0].getHeight(null);
+		state = EnemyState.STILL;
+		dyingAnimator = new SpriteSheetAnimator(DYING_SPRITE_SHEET, dyingAnimatorEventsListener);
 	}
 
 	// =============================================================================================
 	// METHODS
 	// =============================================================================================
-	public void update() {
-		if (updatesToChangeSprite-- == 0) {
-			updatesToChangeSprite = random.nextInt(MAX_UPDATES_TO_CHANGE_SPRITE - MIN_UPDATES_TO_CHANGE_SPRITE)
-					+ MIN_UPDATES_TO_CHANGE_SPRITE;
-			spriteIndex = (spriteIndex + 1) % sprites.length;
+	private SpriteSheetAnimatorEventsListener dyingAnimatorEventsListener = new SpriteSheetAnimatorEventsListener() {
+		@Override
+		public void onAnimationFinished() {
+			state = EnemyState.DEAD;
 		}
-	}
-	
+	};
+
 	// =============================================================================================
 	// BASE METHODS
 	// =============================================================================================
 	@Override
 	public void draw(Graphics _graphics) {
-		_graphics.drawImage(sprites[spriteIndex], x, y, null);
+		switch (state) {
+		case STILL:
+			if (livingAnimator == null) {
+				_graphics.drawImage(sprite, x, y, null);
+			} else {
+				livingAnimator.drawNextFrame(_graphics, x, y);
+			}
+			break;
+		case DYING:
+			dyingAnimator.drawNextFrame(_graphics, x, y);
+			break;
+		}
+	}
+
+	public void kill() {
+		state = EnemyState.DYING;
 	}
 }

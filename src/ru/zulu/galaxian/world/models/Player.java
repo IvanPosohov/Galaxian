@@ -1,4 +1,4 @@
-package ru.zulu.galaxian.player.models;
+package ru.zulu.galaxian.world.models;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -7,7 +7,7 @@ import ru.zulu.galaxian.core.models.DrawableObject;
 import utils.ResourcesLoader;
 
 public class Player extends DrawableObject {
-	public static final int SPEED = 3;
+	public static final int DEFAULT_X_VELOCITY = 3;
 
 	private Image sprite;
 
