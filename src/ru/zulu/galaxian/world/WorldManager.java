@@ -2,7 +2,6 @@ package ru.zulu.galaxian.world;
 
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -18,7 +17,7 @@ import ru.zulu.galaxian.world.models.Player;
 import ru.zulu.galaxian.world.models.PurpleEnemy;
 import ru.zulu.galaxian.world.models.RedEnemy;
 
-public class WorldManager extends BaseManager implements OnUpdateListener, OnDrawListener, KeyListener {
+public class WorldManager extends BaseManager implements OnUpdateListener, OnDrawListener {
 	// =============================================================================================
 	// CONSTANTS
 	// =============================================================================================
@@ -42,6 +41,7 @@ public class WorldManager extends BaseManager implements OnUpdateListener, OnDra
 	// =============================================================================================
 	// FIELDS
 	// =============================================================================================
+	private boolean[] keys;
 	private Random random;
 	private Player player;
 	private Bullet bullet;
@@ -54,6 +54,7 @@ public class WorldManager extends BaseManager implements OnUpdateListener, OnDra
 	// =============================================================================================
 	public WorldManager() {
 		random = new Random();
+		keys = new boolean[65536];
 		player = new Player();
 		bullet = new Bullet();
 		enemies = new ArrayList<BaseEnemy>();
@@ -82,6 +83,7 @@ public class WorldManager extends BaseManager implements OnUpdateListener, OnDra
 	// =============================================================================================
 	@Override
 	public void onUpdate() {
+		processInput();
 		updatePlayer();
 		updateBullet();
 		updateEnemies();
@@ -234,34 +236,30 @@ public class WorldManager extends BaseManager implements OnUpdateListener, OnDra
 	// =============================================================================================
 	// KEYBOARD EVENT HANDLERS
 	// =============================================================================================
-	@Override
-	public void keyPressed(KeyEvent _keyEvent) {
-		switch (_keyEvent.getKeyCode()) {
-		case KeyEvent.VK_LEFT:
+	private void processInput() {
+		player.xVelocity = 0;
+		if (keys[KeyEvent.VK_LEFT] && !keys[KeyEvent.VK_RIGHT]) {
 			player.xVelocity = -Player.DEFAULT_X_VELOCITY;
-			break;
-		case KeyEvent.VK_RIGHT:
+		}
+		if (!keys[KeyEvent.VK_LEFT] && keys[KeyEvent.VK_RIGHT]) {
 			player.xVelocity = Player.DEFAULT_X_VELOCITY;
-			break;
-		case KeyEvent.VK_SPACE:
+		}
+		if (keys[KeyEvent.VK_SPACE]) {
 			shoot();
-			break;
 		}
 	}
 
-	@Override
+	public void keyPressed(KeyEvent _keyEvent) {
+		int code = _keyEvent.getKeyCode();
+		if (code >= 0 && code < keys.length) {
+			keys[code] = true;
+		}
+	}
+
 	public void keyReleased(KeyEvent _keyEvent) {
-		switch (_keyEvent.getKeyCode()) {
-		case KeyEvent.VK_LEFT:
-			player.xVelocity = 0;
-			break;
-		case KeyEvent.VK_RIGHT:
-			player.xVelocity = 0;
-			break;
+		int code = _keyEvent.getKeyCode();
+		if (code >= 0 && code < keys.length) {
+			keys[code] = false;
 		}
-	}
-
-	@Override
-	public void keyTyped(KeyEvent _keyEvent) {
 	}
 }

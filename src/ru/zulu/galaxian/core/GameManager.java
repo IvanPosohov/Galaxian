@@ -122,6 +122,5 @@ public class GameManager extends BaseManager implements KeyListener, OnDrawListe
 
 	@Override
 	public void keyTyped(KeyEvent _keyEvent) {
-		worldManager.keyTyped(_keyEvent);
 	}
 }
