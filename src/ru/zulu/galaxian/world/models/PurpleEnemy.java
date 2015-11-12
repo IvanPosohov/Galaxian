@@ -1,7 +1,7 @@
 package ru.zulu.galaxian.world.models;
 
-import utils.SlowSpriteSheetAnimator;
-import utils.SpriteSheet;
+import ru.zulu.galaxian.utils.SlowSpriteSheetAnimator;
+import ru.zulu.galaxian.utils.SpriteSheet;
 
 public class PurpleEnemy extends BaseEnemy {
 	// =============================================================================================

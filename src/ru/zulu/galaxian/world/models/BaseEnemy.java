@@ -2,12 +2,11 @@ package ru.zulu.galaxian.world.models;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.util.Random;
 
 import ru.zulu.galaxian.core.models.DrawableObject;
-import utils.SpriteSheet;
-import utils.SpriteSheetAnimator;
-import utils.SpriteSheetAnimator.SpriteSheetAnimatorEventsListener;
+import ru.zulu.galaxian.utils.SpriteSheet;
+import ru.zulu.galaxian.utils.SpriteSheetAnimator;
+import ru.zulu.galaxian.utils.SpriteSheetAnimator.SpriteSheetAnimatorEventsListener;
 
 public abstract class BaseEnemy extends DrawableObject {
 	// =============================================================================================

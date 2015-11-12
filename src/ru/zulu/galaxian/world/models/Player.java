@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 import ru.zulu.galaxian.core.models.DrawableObject;
-import utils.ResourcesLoader;
+import ru.zulu.galaxian.utils.ResourcesLoader;
 
 public class Player extends DrawableObject {
 	public static final int DEFAULT_X_VELOCITY = 3;

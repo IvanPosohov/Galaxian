@@ -1,4 +1,4 @@
-package utils;
+package ru.zulu.galaxian.utils;
 
 import java.awt.Graphics;
 

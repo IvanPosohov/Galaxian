@@ -1,6 +1,6 @@
 package ru.zulu.galaxian.world.models;
 
-import utils.ResourcesLoader;
+import ru.zulu.galaxian.utils.ResourcesLoader;
 
 public class FlagshipEnemy extends BaseEnemy {
 	// =============================================================================================
