@@ -1,46 +1,63 @@
 package ru.ivanp.galaxian.core.views;
 
-import java.awt.Color;
-import java.awt.Graphics;
-
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 public class BaseView extends JPanel {
-	// serialization magic
-	private static final long serialVersionUID = 157841L;
+    private EventsListener eventsListener;
 
-	public interface OnDrawListener {
-		void onDraw(Graphics _graphics);
-	}
+    public void setEventsListener(EventsListener eventsListener) {
+        this.eventsListener = eventsListener;
+    }
 
-	// =============================================================================================
-	// FIELDS
-	// =============================================================================================
-	private OnDrawListener onDrawListener;
+    // Конструктор
+    public BaseView() {
+        setBackground(Color.BLACK);
+        // Подписываемся на события базового класса JPanel
+        addComponentListener(new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // При изменении размера JPanel сообщаем об этом наружу с помощью EventsListener'а
+                if (eventsListener != null) {
+                    // Новая ширина и высота панели лежат в переданном сюда объекте события
+                    int width = e.getComponent().getWidth();
+                    int height = e.getComponent().getHeight();
+                    eventsListener.onResize(width, height);
+                }
+            }
 
-	// =============================================================================================
-	// SETTERS
-	// =============================================================================================
-	public void setOnDrawListener(OnDrawListener _onDrawListener) {
-		onDrawListener = _onDrawListener;
-	}
+            // Остальные события нам не интересны, потому не реализовываем методы
+            @Override
+            public void componentMoved(ComponentEvent e) {
+            }
 
-	// =============================================================================================
-	// CONSTRUCTOR
-	// =============================================================================================
-	public BaseView() {
-		setBackground(Color.BLACK);
-	}
+            @Override
+            public void componentShown(ComponentEvent e) {
+            }
 
-	// =============================================================================================
-	// OVERRIDDEN METHODS
-	// =============================================================================================
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		if (onDrawListener != null) {
-			onDrawListener.onDraw(g);
-		}
-		g.dispose();
-	}
+            @Override
+            public void componentHidden(ComponentEvent e) {
+            }
+        });
+    }
+
+    // Вызывается системой при перерисовке JPanel, будем использовать для отрисовки своих объектов
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // Сообщаем наружу что пора рисовать объекты
+        if (eventsListener != null) {
+            eventsListener.onDraw(g);
+        }
+        g.dispose();
+    }
+
+    // Интерфейс для передачи сообщений наружу
+    public interface EventsListener {
+        void onDraw(Graphics g);
+
+        void onResize(int width, int height);
+    }
 }

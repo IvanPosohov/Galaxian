@@ -1,126 +1,130 @@
 package ru.ivanp.galaxian.core;
 
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import javax.swing.Timer;
-
 import ru.ivanp.galaxian.background.BackgroundManager;
 import ru.ivanp.galaxian.core.models.GameState;
 import ru.ivanp.galaxian.core.views.BaseView;
-import ru.ivanp.galaxian.core.views.BaseView.OnDrawListener;
 import ru.ivanp.galaxian.world.WorldManager;
 
-public class GameManager extends BaseManager implements KeyListener, OnDrawListener {
-	// =============================================================================================
-	// CONSTANTS
-	// =============================================================================================
-	private static final int WORLD_UPDATE_INTERVAL_MILLIS = 30;
+import javax.swing.*;
 
-	// =============================================================================================
-	// FIELDS
-	// =============================================================================================
-	private BackgroundManager backgroundManager;
-	private WorldManager worldManager;
-	private BaseView view;
-	private Timer worldTimer;
-	private GameState state;
+public class GameManager implements BaseView.EventsListener, KeyListener {
+    // =============================================================================================
+    // CONSTANTS
+    // =============================================================================================
+    private static final int WORLD_UPDATE_INTERVAL_MILLIS = 30;
 
-	// =============================================================================================
-	// GETTERS/SETTERS
-	// =============================================================================================
-	public void setView(BaseView _view) {
-		if (view != null) {
-			view.setOnDrawListener(null);
-		}
-		view = _view;
-		view.setOnDrawListener(this);
-	}
-	
-	// =============================================================================================
-	// CONSTRUCTOR
-	// =============================================================================================
-	public GameManager() {
-		backgroundManager = new BackgroundManager();
-		worldManager = new WorldManager();
-		worldTimer = new Timer(WORLD_UPDATE_INTERVAL_MILLIS, worldTimerTask);
-		state = GameState.IDLE;
-	}
+    // =============================================================================================
+    // FIELDS
+    // =============================================================================================
+    private final BaseView view;
+    // Менеджеры отвечающие за свои частии игры
+    private BackgroundManager backgroundManager;
+    private WorldManager worldManager;
+    // Состояние игры
+    private GameState state;
+    private Timer worldTimer;
 
-	// =============================================================================================
-	// METHODS OF BASE CLASSES
-	// =============================================================================================
-	public void setGameAreaSize(int _width, int _height) {
-		super.setGameAreaSize(_width, _height);
-		backgroundManager.setGameAreaSize(_width, _height);
-		worldManager.setGameAreaSize(_width, _height);
-	};
+    // =============================================================================================
+    // CONSTRUCTOR
+    // =============================================================================================
+    public GameManager(BaseView view) {
+        this.view = view;
+        view.setEventsListener(this);
+        backgroundManager = new BackgroundManager();
+        worldManager = new WorldManager();
+        worldTimer = new Timer(WORLD_UPDATE_INTERVAL_MILLIS, worldTimerTask);
+        state = GameState.IDLE;
+    }
 
-	// =============================================================================================
-	// METHODS
-	// =============================================================================================
-	@Override
-	public void start() {
-		state = GameState.RUNNING;
-		worldManager.start();
-		worldTimer.start();
-	}
+    // =============================================================================================
+    // METHODS
+    // =============================================================================================
+    /**
+     * Запустить игру
+     */
+    public void start() {
+        state = GameState.RUNNING;
+        backgroundManager.init();
+        worldManager.init();
+        worldTimer.start();
+    }
 
-	public void stop() {
-		state = GameState.PAUSED;
-		worldTimer.stop();
-		if (view != null) {
-			view.repaint();
-		}
-	}
+    /**
+     * Приостановить игру
+     */
+    public void stop() {
+        state = GameState.PAUSED;
+        worldTimer.stop();
+        if (view != null) {
+            view.repaint();
+        }
+    }
 
-	// =============================================================================================
-	// UPDATING
-	// =============================================================================================
-	private ActionListener worldTimerTask = new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			update();
-			repaint();
-		}
-	};
+    // =============================================================================================
+    // UPDATING
+    // =============================================================================================
+    private ActionListener worldTimerTask = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            update();
+            render();
+        }
+    };
 
-	private void update() {
-		backgroundManager.onUpdate();
-		worldManager.onUpdate();
-	}
-	
-	private void repaint() {
-		if (view != null) {
-			view.repaint();
-		}
-	}
+    /**
+     * Пересчет мира, положения столкновения и прочая физика
+     */
+    private void update() {
+        backgroundManager.update();
+        worldManager.update();
+    }
 
-	@Override
-	public void onDraw(Graphics _graphics) {
-		if (state == GameState.RUNNING) {
-			backgroundManager.onDraw(_graphics);
-			worldManager.onDraw(_graphics);
-		}
-	}
+    /**
+     * Отрисовка мира
+     */
+    private void render() {
+        // Сообщаем вьюшке, что она должна перерисоваться. В ответ на это будет вызван метод render(),
+        // в котором мы и должны рисовать свои шарики, квадратики, whatever
+        view.repaint();
+    }
 
-	// =============================================================================================
-	// KEYBOARD EVENT HANDLERS
-	// =============================================================================================
-	@Override
-	public void keyPressed(KeyEvent _keyEvent) {
-		worldManager.keyPressed(_keyEvent);
-	}
+    // =============================================================================================
+    // BASE VIEW HANDLERS
+    // =============================================================================================
+    @Override
+    public void onDraw(Graphics g) {
+        if (state == GameState.RUNNING) {
+            backgroundManager.render(g);
+            worldManager.render(g);
+        }
+    }
 
-	@Override
-	public void keyReleased(KeyEvent _keyEvent) {
-		worldManager.keyReleased(_keyEvent);
-	}
+    @Override
+    public void onResize(int width, int height) {
+        backgroundManager.resize(width, height);
+        worldManager.resize(width, height);
+    }
 
-	@Override
-	public void keyTyped(KeyEvent _keyEvent) {
-	}
+    // =============================================================================================
+    // KEYBOARD EVENT HANDLERS
+    // =============================================================================================
+    @Override
+    public void keyPressed(KeyEvent keyEvent) {
+        worldManager.keyPressed(keyEvent);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent keyEvent) {
+        worldManager.keyReleased(keyEvent);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent keyEvent) {
+    }
 }

@@ -1,33 +1,34 @@
 package ru.ivanp.galaxian.utils;
 
+import javax.swing.*;
 import java.awt.Graphics;
-import java.util.Random;
+import java.awt.event.ActionEvent;
 
 public class SlowSpriteSheetAnimator extends SpriteSheetAnimator {
-	private static final Random RAND = new Random();
-	
-	private final int minSkipFrames;
-	private final int maxSkipFrames;
-	private int counter;
-	
-	public SlowSpriteSheetAnimator(SpriteSheet _spriteSheet, SpriteSheetAnimatorEventsListener _listener, int _minSkipFrames, int _maxSkipFrames) {
-		super(_spriteSheet, _listener);
-		minSkipFrames = _minSkipFrames;
-		maxSkipFrames = _maxSkipFrames;
-		updateCounter();
-	}
-	
-	private void updateCounter() {
-		counter = RAND.nextInt(maxSkipFrames - minSkipFrames) + minSkipFrames;
-	}
+    private static final int FRAME_INTERVAL_MILLIS = 30;
 
-	@Override
-	public void drawNextFrame(Graphics _graphics, int _x, int _y) {
-		if (counter-- == 0) {
-			updateCounter();
-			super.drawNextFrame(_graphics, _x, _y);
-		} else {
-			drawCurrentFrame(_graphics, _x, _y);
-		}
-	}
+    private final int minSkipFrames;
+    private final int maxSkipFrames;
+    private int counter;
+
+    public SlowSpriteSheetAnimator(SpriteSheet spriteSheet, EventsListener listener, int minSkipFrames, int maxSkipFrames) {
+        super(spriteSheet, listener);
+        this.minSkipFrames = minSkipFrames;
+        this.maxSkipFrames = maxSkipFrames;
+        updateCounter();
+    }
+
+    private void updateCounter() {
+        counter = RandomUtils.nextInt(minSkipFrames, maxSkipFrames);
+    }
+
+    @Override
+    public void drawNextFrame(Graphics g, int x, int y) {
+        if (counter-- == 0) {
+            updateCounter();
+            super.drawNextFrame(g, x, y);
+        } else {
+            drawCurrentFrame(g, x, y);
+        }
+    }
 }
